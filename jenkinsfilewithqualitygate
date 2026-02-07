@@ -1,0 +1,32 @@
+pipeline{
+    agent {label 'ubuntu1'}
+    options {timeout(time: 1, unit: 'HOURS')
+    retry(2)
+    }
+    stages{
+        stage('Git clone the project'){
+            steps{
+                git url:'https://github.com/john92999/openmrs-core.git', branch: 'master'
+            }
+        }
+        stage('build the project'){
+            steps{
+                withSonarQubeEnv('SONAR'){
+                    sh 'mvn clean package sonar:sonar'
+                }
+            }
+        }
+        stage('Quality Gate'){
+            steps{
+                timeout(time: 1, unit: 'HOURS'){
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        stage('publish the tests'){
+            steps{
+                junit testResults:'**/surefire-reports/*.xml'
+            }
+        }
+    }
+}
