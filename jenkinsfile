@@ -10,8 +10,10 @@ pipeline{
             }
         }
         stage('build the project'){
-            withSonarQubeEnv('On Sonar server'){
-                sh 'mvn clean package sonar:sonar'
+            steps{
+                withSonarQubeEnv('On Sonar server'){
+                    sh 'mvn clean package sonar:sonar'
+                }
             }
         }
         stage('publish the tests'){
